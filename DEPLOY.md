@@ -29,6 +29,8 @@ client_max_body_size 250M;
 
 Vercel function 檔案系統不持久，SQLite 與 `public/uploads` 也不能作為正式儲存。若要用 Vercel，需要：
 
+目前 repo 內的 `vercel-build` 會在建置時建立 SQLite 與 seed，讓公開前台可直接作為展示版部署；production 後台登入刻意不設定，任何寫入也不保證持久。
+
 - DB 改 PostgreSQL，`DATABASE_URL` 指向代管資料庫。
 - 實作現有 `StorageAdapter` 的 Supabase Storage / S3 adapter。
 - 大影片改為瀏覽器直傳 storage；影片轉檔移到背景 worker 或 Mux/Cloudflare Stream。
