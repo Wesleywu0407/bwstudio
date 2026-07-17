@@ -1,0 +1,9 @@
+"use client";
+import { useState } from "react";
+
+type SettingsInput = { siteName: string; tagline: string; location: string; showreelUrl: string | null; showreelPoster: string | null; aboutText: string; email: string; instagram: string | null; vimeo: string | null; behance: string | null };
+export default function SettingsEditor({ initial }: { initial: SettingsInput }) {
+  const [data, setData] = useState(initial); const [message, setMessage] = useState(""); const [busy, setBusy] = useState(false);
+  const fields: [string, keyof SettingsInput][] = [["Display name", "siteName"], ["Tagline", "tagline"], ["Location", "location"], ["Email", "email"], ["Showreel URL", "showreelUrl"], ["Showreel poster URL", "showreelPoster"], ["Instagram", "instagram"], ["Vimeo", "vimeo"], ["Behance", "behance"]];
+  return <form className="max-w-3xl space-y-5" onSubmit={async (e) => { e.preventDefault(); setBusy(true); const res = await fetch("/api/settings", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(data) }); setBusy(false); setMessage(res.ok ? "Settings saved." : "Save failed."); }}><div className="grid gap-5 md:grid-cols-2">{fields.map(([label, key]) => <label key={key}><span className="mono-label mb-2 block text-mut">{label}</span><input className="admin-input" value={data[key] ?? ""} onChange={(e) => setData((current) => ({ ...current, [key]: e.target.value }))} /></label>)}</div><label className="block"><span className="mono-label mb-2 block text-mut">About text</span><textarea rows={8} className="admin-input" value={data.aboutText} onChange={(e) => setData((current) => ({ ...current, aboutText: e.target.value }))} /></label>{message && <p className="text-sm text-mut">{message}</p>}<button disabled={busy} className="bg-fg px-6 py-4 mono-label text-bg disabled:opacity-50">{busy ? "Saving…" : "Save settings"}</button></form>;
+}

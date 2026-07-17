@@ -1,0 +1,58 @@
+// SQLite for dev/VPS; schema 保持 Postgres 相容(切換只改 provider + url)
+// SQLite 不支援 enum,category 用 String,值域由 lib/works.ts 的 CATEGORIES 驗證
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Work {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  category    String // MUSIC_VIDEO | COMMERCIAL | CG_FILM | EXPERIMENT
+  description String   @default("")
+  client      String?
+  role        String?
+  software    String   @default("")
+  year        Int
+  aspect      String   @default("16:9") // 16:9 | 9:16 | 1:1 | 4:5,排版依據
+  coverImage  String   @default("")
+  coverBlur   String?
+  previewClip String?
+  videoUrl    String?
+  externalUrl String?
+  stills      Still[]
+  featured    Boolean  @default(false)
+  published   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Still {
+  id        String @id @default(cuid())
+  url       String
+  blur      String?
+  sortOrder Int    @default(0)
+  work      Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  workId    String
+}
+
+model Settings {
+  id             Int     @id @default(1)
+  siteName       String  @default("BOB")
+  tagline        String  @default("CG Director / Motion Designer")
+  location       String  @default("Taipei, Taiwan")
+  showreelUrl    String?
+  showreelPoster String?
+  aboutText      String  @default("")
+  email          String  @default("")
+  instagram      String?
+  vimeo          String?
+  behance        String?
+}

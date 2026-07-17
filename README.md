@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BOB — CG Artist Portfolio
 
-## Getting Started
+暗場、無彩度、以作品為唯一光源的 CG Director / Motion Designer 個人作品集。支援 9:16、16:9、4:5、1:1 混合比例，並內建單管理員後台與伺服器端影片處理。
 
-First, run the development server:
+## 本機啟動
+
+需要 Node.js 20+。第一次執行：
 
 ```bash
+npm install
+cp .env.example .env
+npm run setup
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+開啟 `http://localhost:3000`。後台位於 `http://localhost:3000/admin/login`。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+若要設定後台密碼，先產生 bcrypt hash：
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx tsx scripts/hash-password.ts "你的密碼"
+```
 
-## Learn More
+將輸出貼到 `.env` 的 `ADMIN_PASSWORD_HASH`；`SESSION_SECRET` 必須換成至少 32 字元的隨機值。本機 development 也可暫用現有的 `ADMIN_PASSWORD`，production 只接受 hash。改完需重啟 dev server。
 
-To learn more about Next.js, take a look at the following resources:
+## 本人後台操作
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. 登入 `/admin/login`。
+2. 在 Works 按「NEW WORK +」。
+3. 填 Title、Slug、分類、年份與比例。
+4. 選擇完整影片。伺服器會自動產生 4 秒靜音 preview、封面、blur placeholder，並依影片判斷比例。
+5. 勾選 Published 才會出現在前台；Featured 會進首頁。
+6. Works 列表用上下箭頭排序，Live / Featured 可快速切換。
+7. Settings 可改名字、簡介、email、社群連結與 showreel。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+開發 seed 的八件作品只是假資料；正式上線前可從後台刪除或改寫。
 
-## Deploy on Vercel
+## 常用指令
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev          # 開發伺服器
+npm run lint         # ESLint
+npm run build        # production build
+npm run db:push      # schema 同步到 SQLite
+npm run db:seed      # 補入假資料（upsert，不重複）
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 架構
+
+- Next.js 16 App Router、React 19、TypeScript、Tailwind CSS v4、Framer Motion
+- Prisma 6 + SQLite
+- `StorageAdapter` 預設存到 `public/uploads`
+- `ffmpeg-static` + `sharp` 處理 preview / poster / blur
+- `iron-session` + bcrypt 單管理員認證；登入有 in-memory rate limit
+
+部署請見 [DEPLOY.md](./DEPLOY.md)。
