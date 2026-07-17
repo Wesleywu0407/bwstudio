@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 /Users/wumingjuan/.claude/skills/ui-ux-pro-max/scripts/search.py \"CG director film portfolio dark cinematic video-first minimal\" --design-system -p \"CG Artist Portfolio\")"
+    ]
+  }
+}
