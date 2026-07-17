@@ -16,7 +16,9 @@ const works = [
 async function main() {
   await prisma.settings.upsert({
     where: { id: 1 },
-    update: {},
+    update: {
+      instagram: "https://www.instagram.com/bw726____/",
+    },
     create: {
       id: 1,
       siteName: "BOB",
@@ -24,7 +26,7 @@ async function main() {
       location: "TAIPEI, TAIWAN",
       aboutText: "I direct moving images and build synthetic worlds for music, culture, and brands. My practice moves between CG direction, motion design, and visual development — always searching for the frame that feels unfamiliar but inevitable.",
       email: "hello@bob.studio",
-      instagram: "https://instagram.com/",
+      instagram: "https://www.instagram.com/bw726____/",
       vimeo: "https://vimeo.com/",
     },
   });
