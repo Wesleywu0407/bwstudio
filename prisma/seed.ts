@@ -18,6 +18,7 @@ async function main() {
     where: { id: 1 },
     update: {
       instagram: "https://www.instagram.com/bw726____/",
+      email: "bowang.obj@gmail.com",
     },
     create: {
       id: 1,
@@ -25,7 +26,7 @@ async function main() {
       tagline: "CG DIRECTOR / MOTION DESIGNER",
       location: "TAIPEI, TAIWAN",
       aboutText: "I direct moving images and build synthetic worlds for music, culture, and brands. My practice moves between CG direction, motion design, and visual development — always searching for the frame that feels unfamiliar but inevitable.",
-      email: "hello@bob.studio",
+      email: "bowang.obj@gmail.com",
       instagram: "https://www.instagram.com/bw726____/",
       vimeo: "https://vimeo.com/",
     },
