@@ -37,14 +37,18 @@ async function compress(input: string, output: string, maxW: number, crf: number
   ]);
 }
 
-async function processOne(input: string, dir: string) {
+async function processOne(
+  input: string,
+  dir: string,
+  { posterAt = 1, previewFrom = 0 } = {},
+) {
   await mkdir(dir, { recursive: true });
   const full = path.join(dir, "full.mp4");
   const preview = path.join(dir, "preview.mp4");
   const cover = path.join(dir, "cover.jpg");
   await compress(input, full, 1440, 23);
-  await makePreviewClip(input, preview);
-  await extractPoster(input, cover);
+  await makePreviewClip(input, preview, previewFrom);
+  await extractPoster(input, cover, posterAt);
   const blur = await blurDataURL(await readFile(cover));
   return blur;
 }
@@ -58,15 +62,16 @@ async function main() {
   console.log("✓ showreel processed");
 
   // ── works ──
+  // posterAt / previewFrom:掃過整支片後挑的最有色彩的段落(開頭偏暗)
   const works = [
-    { slug: "vj-set-01", title: "VJ SET 01", src: "vj_ig.mp4" },
-    { slug: "vj-set-02", title: "VJ SET 02", src: "vj_ig_2.mp4" },
+    { slug: "vj-set-01", title: "VJ SET 01", src: "vj_ig.mp4", posterAt: 30, previewFrom: 22 },
+    { slug: "vj-set-02", title: "VJ SET 02", src: "vj_ig_2.mp4", posterAt: 1, previewFrom: 0 },
   ];
 
   await prisma.work.deleteMany({});
   for (const [index, w] of works.entries()) {
     const dir = path.join(UPLOADS, "works", w.slug);
-    const blur = await processOne(path.join(ROOT, "assets", w.src), dir);
+    const blur = await processOne(path.join(ROOT, "assets", w.src), dir, w);
     await prisma.work.create({
       data: {
         slug: w.slug,

@@ -44,14 +44,15 @@ export function classifyAspect(width: number, height: number): string {
   return options[0][0];
 }
 
-/** 生成 4 秒靜音低碼率 preview clip(hover 用,目標 < 1MB) */
+/** 生成 4 秒靜音低碼率 preview clip(hover 用,目標 < 1MB);start 可指定起始秒數 */
 export async function makePreviewClip(
   inputPath: string,
   outputPath: string,
+  start = 0,
 ): Promise<void> {
   await runFfmpeg([
     "-y",
-    "-ss", "0",
+    "-ss", String(start),
     "-t", "4",
     "-i", inputPath,
     "-vf", "scale='min(640,iw)':-2",
@@ -65,14 +66,15 @@ export async function makePreviewClip(
   ]);
 }
 
-/** 抽第 1 秒 frame 當封面 */
+/** 抽指定秒數的 frame 當封面(預設第 1 秒) */
 export async function extractPoster(
   inputPath: string,
   outputPath: string,
+  at = 1,
 ): Promise<void> {
   await runFfmpeg([
     "-y",
-    "-ss", "1",
+    "-ss", String(at),
     "-i", inputPath,
     "-frames:v", "1",
     "-q:v", "3",
