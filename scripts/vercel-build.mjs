@@ -19,4 +19,7 @@ function run(command, args) {
 run("npx", ["prisma", "generate"]);
 run("npx", ["prisma", "db", "push", "--skip-generate"]);
 run("npx", ["tsx", "prisma/seed.ts"]);
+// 從 assets/ 的原始影片生成 showreel、作品影片、封面與資料庫內容,
+// 部署內容永遠跟素材同步(ffmpeg 在 Vercel 建置容器可用)
+run("npx", ["tsx", "scripts/import-assets.ts"]);
 run("npx", ["next", "build"]);
