@@ -5,7 +5,7 @@ import { CATEGORY_LABELS, type Category } from "@/lib/works";
 
 export type WorkCardData = { id: string; slug: string; title: string; category: string; year: number; aspect: string; coverImage: string; previewClip?: string | null };
 
-const ratio: Record<string, string> = { "16:9": "aspect-[16/9]", "9:16": "aspect-[9/16]", "1:1": "aspect-square", "4:5": "aspect-[4/5]" };
+const ratio: Record<string, string> = { "16:9": "aspect-[16/9]", "9:16": "aspect-[9/16]", "4:3": "aspect-[4/3]", "1:1": "aspect-square", "4:5": "aspect-[4/5]" };
 
 export default function WorkCard({ work, index, className = "" }: { work: WorkCardData; index: number; className?: string }) {
   return (

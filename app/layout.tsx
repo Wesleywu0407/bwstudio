@@ -33,16 +33,16 @@ const tc = Noto_Sans_TC({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
-    default: "BOB — CG Director / Motion Designer",
-    template: "%s — BOB",
+    default: "BWSTUDIO — 3D / CG Generalist",
+    template: "%s — BWSTUDIO",
   },
   description:
-    "CG direction and motion design. Music videos, commercials, cinematic worlds.",
+    "3D and motion work. Music videos, live visuals, cinematic worlds.",
   openGraph: {
     type: "website",
-    title: "BOB — CG Director / Motion Designer",
-    description: "CG direction and motion design. Music videos, commercials, cinematic worlds.",
-    images: ["/demo/orbital-relic.svg"],
+    title: "BWSTUDIO — 3D / CG Generalist",
+    description: "3D and motion work. Music videos, live visuals, cinematic worlds.",
+    images: ["/uploads/showreel/poster.jpg"],
   },
 };
 
@@ -55,9 +55,9 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className={`${display.variable} ${body.variable} ${mono.variable} ${tc.variable} h-full antialiased`}
+      className={`${display.variable} ${body.variable} ${mono.variable} ${tc.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );
 }

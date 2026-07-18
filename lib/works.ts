@@ -16,7 +16,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   EXPERIMENT: "Experiment",
 };
 
-export const ASPECTS = ["16:9", "9:16", "1:1", "4:5"] as const;
+export const ASPECTS = ["16:9", "9:16", "4:3", "1:1", "4:5"] as const;
 
 export function isCategory(value: string): value is Category {
   return (CATEGORIES as readonly string[]).includes(value);

@@ -36,6 +36,7 @@ export function classifyAspect(width: number, height: number): string {
   const options: [string, number][] = [
     ["16:9", 16 / 9],
     ["9:16", 9 / 16],
+    ["4:3", 4 / 3],
     ["1:1", 1],
     ["4:5", 4 / 5],
   ];

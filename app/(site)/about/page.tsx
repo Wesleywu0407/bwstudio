@@ -13,7 +13,7 @@ export default async function AboutPage() {
         <MonoLabel className="md:col-span-3">{settings.tagline}</MonoLabel>
         <div className="md:col-span-7 md:col-start-6"><p className="font-display text-3xl font-light leading-tight tracking-[-.04em] md:text-5xl">{settings.aboutText}</p><p className="mt-12 max-w-xl text-sm leading-7 text-mut">Available for music videos, title design, visual development, commercials, and selected collaborations worldwide.</p></div>
       </div>
-      <div id="contact" className="mt-28 grid border-t border-line pt-5 md:mt-44 md:grid-cols-12"><MonoLabel className="md:col-span-3">Contact</MonoLabel><a href={`mailto:${settings.email}`} className="mt-8 break-all font-display text-[7vw] font-light tracking-[-.06em] md:col-span-9 md:mt-0">{settings.email}</a></div>
+      <div id="contact" className="mt-28 grid border-t border-line pt-5 md:mt-44 md:grid-cols-12"><MonoLabel className="md:col-span-3">Contact</MonoLabel><a href={`mailto:${settings.email}`} className="nav-link mt-8 w-fit whitespace-nowrap font-display text-[clamp(1.4rem,3.8vw,3.75rem)] font-light tracking-[-.04em] md:col-span-9 md:mt-0">{settings.email}</a></div>
     </div>
   );
 }
