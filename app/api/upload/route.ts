@@ -19,7 +19,11 @@ export async function POST(request: Request) {
   const safeName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, "-");
   const key = `${Date.now()}-${safeName}`;
   const storage = getStorage();
-  const original = await storage.save(buffer, `originals/${key}`);
+  // 雲端儲存(serverless)沒有本地 ffmpeg 管線:影片一律走 /api/upload-url 直傳
+  if (VIDEO.has(file.type) && !storage.localPath("/uploads/_probe")) {
+    return Response.json({ error: "Use direct upload for videos on cloud storage" }, { status: 400 });
+  }
+  const original = await storage.save(buffer, `originals/${key}`, file.type);
   if (IMAGE.has(file.type)) return Response.json({ url: original, blur: await blurDataURL(buffer), kind: "image" });
   try {
     const local = storage.localPath(original);

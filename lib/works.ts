@@ -1,26 +1,14 @@
 import { prisma } from "@/lib/prisma";
+import { isCategory } from "@/lib/categories";
 
-export const CATEGORIES = [
-  "MUSIC_VIDEO",
-  "COMMERCIAL",
-  "CG_FILM",
-  "EXPERIMENT",
-] as const;
-
-export type Category = (typeof CATEGORIES)[number];
-
-export const CATEGORY_LABELS: Record<Category, string> = {
-  MUSIC_VIDEO: "Music Video",
-  COMMERCIAL: "Commercial",
-  CG_FILM: "CG Film",
-  EXPERIMENT: "Experiment",
-};
-
-export const ASPECTS = ["16:9", "9:16", "4:3", "1:1", "4:5"] as const;
-
-export function isCategory(value: string): value is Category {
-  return (CATEGORIES as readonly string[]).includes(value);
-}
+// server 端資料存取;常數已移到 lib/categories(client-safe),此處 re-export 維持相容
+export {
+  CATEGORIES,
+  CATEGORY_LABELS,
+  ASPECTS,
+  isCategory,
+  type Category,
+} from "@/lib/categories";
 
 const workOrder = [{ sortOrder: "asc" as const }, { createdAt: "desc" as const }];
 

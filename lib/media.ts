@@ -4,6 +4,9 @@ import { tmpdir } from "os";
 import path from "path";
 import ffmpegPath from "ffmpeg-static";
 import sharp from "sharp";
+import { classifyAspect } from "@/lib/categories";
+
+export { classifyAspect };
 
 function runFfmpeg(args: string[], allowFail = false): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -31,18 +34,6 @@ export async function probeVideo(inputPath: string): Promise<VideoInfo> {
   return { width, height, aspect: classifyAspect(width, height) };
 }
 
-export function classifyAspect(width: number, height: number): string {
-  const ratio = width / height;
-  const options: [string, number][] = [
-    ["16:9", 16 / 9],
-    ["9:16", 9 / 16],
-    ["4:3", 4 / 3],
-    ["1:1", 1],
-    ["4:5", 4 / 5],
-  ];
-  options.sort((a, b) => Math.abs(a[1] - ratio) - Math.abs(b[1] - ratio));
-  return options[0][0];
-}
 
 /** 生成 4 秒靜音低碼率 preview clip(hover 用,目標 < 1MB);start 可指定起始秒數 */
 export async function makePreviewClip(

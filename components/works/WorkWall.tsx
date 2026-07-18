@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import WorkCard, { type WorkCardData } from "@/components/works/WorkCard";
-import { CATEGORIES, CATEGORY_LABELS, type Category } from "@/lib/works";
+import { CATEGORIES, CATEGORY_LABELS, type Category } from "@/lib/categories";
 
 export default function WorkWall({ works }: { works: WorkCardData[] }) {
   const search = useSearchParams();

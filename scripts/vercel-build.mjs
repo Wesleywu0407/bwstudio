@@ -2,10 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 
-process.env.DATABASE_URL ||= "file:./dev.db";
-
-await mkdir("prisma", { recursive: true });
-if (!existsSync("prisma/dev.db")) await writeFile("prisma/dev.db", "");
+const isPostgres = /^postgres(ql)?:/.test(process.env.DATABASE_URL ?? "");
 
 function run(command, args) {
   const result = spawnSync(command, args, {
@@ -16,10 +13,19 @@ function run(command, args) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-run("npx", ["prisma", "generate"]);
-run("npx", ["prisma", "db", "push", "--skip-generate"]);
-run("npx", ["tsx", "prisma/seed.ts"]);
-// 從 assets/ 的原始影片生成 showreel、作品影片、封面與資料庫內容,
-// 部署內容永遠跟素材同步(ffmpeg 在 Vercel 建置容器可用)
-run("npx", ["tsx", "scripts/import-assets.ts"]);
+if (isPostgres) {
+  // 雲端模式:內容存在 Postgres + Supabase Storage,建置只同步 schema 與基本設定
+  run("node", ["scripts/db.mjs", "generate"]);
+  run("node", ["scripts/db.mjs", "push"]);
+  run("npx", ["tsx", "prisma/seed.ts"]);
+} else {
+  // 展示模式(沒設雲端 DB):SQLite 烘進部署 + 從 assets/ 生成內容
+  process.env.DATABASE_URL = "file:./dev.db";
+  await mkdir("prisma", { recursive: true });
+  if (!existsSync("prisma/dev.db")) await writeFile("prisma/dev.db", "");
+  run("node", ["scripts/db.mjs", "generate"]);
+  run("node", ["scripts/db.mjs", "push"]);
+  run("npx", ["tsx", "prisma/seed.ts"]);
+  run("npx", ["tsx", "scripts/import-assets.ts"]);
+}
 run("npx", ["next", "build"]);

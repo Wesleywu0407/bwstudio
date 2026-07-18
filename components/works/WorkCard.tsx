@@ -1,7 +1,7 @@
 import Link from "next/link";
 import HoverPreview from "@/components/video/HoverPreview";
 import MonoLabel from "@/components/ui/MonoLabel";
-import { CATEGORY_LABELS, type Category } from "@/lib/works";
+import { CATEGORY_LABELS, type Category } from "@/lib/categories";
 
 export type WorkCardData = { id: string; slug: string; title: string; category: string; year: number; aspect: string; coverImage: string; previewClip?: string | null };
 

@@ -1,17 +1,21 @@
-// 一次性匯入 assets/ 的真實影片:
-//   壓縮全片 + 生成 4 秒 preview + 封面抽幀 + blur placeholder → public/uploads/
-//   然後寫入 Settings(showreel)與 Work(作品)
+// 匯入 assets/ 的真實影片:壓縮全片 + 4 秒 preview + 封面抽幀 + blur,
+// 經 StorageAdapter 寫入(本地 → public/uploads;設了 Supabase env → 雲端 bucket),
+// 再寫入 Settings(showreel)與 Work。對同一目的地可重複執行(冪等)。
 // 用法:npx tsx scripts/import-assets.ts
+//   本地:直接跑
+//   上雲(一次性遷移):.env 設好 DATABASE_URL(postgres)+ SUPABASE_* 後跑
 import { spawn } from "child_process";
-import { mkdir, readFile } from "fs/promises";
+import { mkdtemp, readFile, rm } from "fs/promises";
+import { tmpdir } from "os";
 import path from "path";
 import ffmpegPath from "ffmpeg-static";
 import { PrismaClient } from "@prisma/client";
 import { makePreviewClip, extractPoster, blurDataURL } from "../lib/media";
+import { getStorage } from "../lib/storage";
 
 const prisma = new PrismaClient();
 const ROOT = process.cwd();
-const UPLOADS = path.join(ROOT, "public", "uploads");
+const storage = getStorage();
 
 function run(args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -39,65 +43,79 @@ async function compress(input: string, output: string, maxW: number, crf: number
 
 async function processOne(
   input: string,
-  dir: string,
+  keyPrefix: string,
   { posterAt = 1, previewFrom = 0 } = {},
 ) {
-  await mkdir(dir, { recursive: true });
-  const full = path.join(dir, "full.mp4");
-  const preview = path.join(dir, "preview.mp4");
-  const cover = path.join(dir, "cover.jpg");
-  await compress(input, full, 1440, 23);
-  await makePreviewClip(input, preview, previewFrom);
-  await extractPoster(input, cover, posterAt);
-  const blur = await blurDataURL(await readFile(cover));
-  return blur;
+  const workDir = await mkdtemp(path.join(tmpdir(), "bobweb-import-"));
+  try {
+    const full = path.join(workDir, "full.mp4");
+    const preview = path.join(workDir, "preview.mp4");
+    const cover = path.join(workDir, "cover.jpg");
+    await compress(input, full, 1440, 23);
+    await makePreviewClip(input, preview, previewFrom);
+    await extractPoster(input, cover, posterAt);
+    const coverBuffer = await readFile(cover);
+    const [videoUrl, previewClip, coverImage] = await Promise.all([
+      storage.save(await readFile(full), `${keyPrefix}/full.mp4`, "video/mp4"),
+      storage.save(await readFile(preview), `${keyPrefix}/preview.mp4`, "video/mp4"),
+      storage.save(coverBuffer, `${keyPrefix}/cover.jpg`, "image/jpeg"),
+    ]);
+    const blur = await blurDataURL(coverBuffer);
+    return { videoUrl, previewClip, coverImage, blur };
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
+  }
 }
 
 async function main() {
   // ── showreel:vj_ig_2(7.3s loop)──
-  const reelDir = path.join(UPLOADS, "showreel");
-  await mkdir(reelDir, { recursive: true });
-  await compress(path.join(ROOT, "assets", "vj_ig_2.mp4"), path.join(reelDir, "showreel.mp4"), 1280, 26);
-  await extractPoster(path.join(ROOT, "assets", "vj_ig_2.mp4"), path.join(reelDir, "poster.jpg"));
-  console.log("✓ showreel processed");
+  const reelDir = await mkdtemp(path.join(tmpdir(), "bobweb-reel-"));
+  let showreelUrl: string, showreelPoster: string;
+  try {
+    const reel = path.join(reelDir, "showreel.mp4");
+    const poster = path.join(reelDir, "poster.jpg");
+    await compress(path.join(ROOT, "assets", "vj_ig_2.mp4"), reel, 1280, 26);
+    await extractPoster(path.join(ROOT, "assets", "vj_ig_2.mp4"), poster);
+    [showreelUrl, showreelPoster] = await Promise.all([
+      storage.save(await readFile(reel), "showreel/showreel.mp4", "video/mp4"),
+      storage.save(await readFile(poster), "showreel/poster.jpg", "image/jpeg"),
+    ]);
+  } finally {
+    await rm(reelDir, { recursive: true, force: true });
+  }
+  console.log("✓ showreel processed →", showreelUrl);
 
-  // ── works ──
   // posterAt / previewFrom:掃過整支片後挑的最有色彩的段落(開頭偏暗)
   const works = [
     { slug: "vj-set-01", title: "VJ SET 01", src: "vj_ig.mp4", posterAt: 30, previewFrom: 22 },
     { slug: "vj-set-02", title: "VJ SET 02", src: "vj_ig_2.mp4", posterAt: 1, previewFrom: 0 },
   ];
 
-  await prisma.work.deleteMany({});
   for (const [index, w] of works.entries()) {
-    const dir = path.join(UPLOADS, "works", w.slug);
-    const blur = await processOne(path.join(ROOT, "assets", w.src), dir, w);
-    await prisma.work.create({
-      data: {
-        slug: w.slug,
-        title: w.title,
-        category: "EXPERIMENT",
-        year: 2026,
-        aspect: "4:3",
-        role: "3D / Motion",
-        coverImage: `/uploads/works/${w.slug}/cover.jpg`,
-        coverBlur: blur,
-        previewClip: `/uploads/works/${w.slug}/preview.mp4`,
-        videoUrl: `/uploads/works/${w.slug}/full.mp4`,
-        featured: true,
-        published: true,
-        sortOrder: index,
-      },
+    const media = await processOne(path.join(ROOT, "assets", w.src), `works/${w.slug}`, w);
+    const record = {
+      title: w.title,
+      category: "EXPERIMENT",
+      year: 2026,
+      aspect: "4:3",
+      role: "3D / Motion",
+      coverImage: media.coverImage,
+      coverBlur: media.blur,
+      previewClip: media.previewClip,
+      videoUrl: media.videoUrl,
+      featured: true,
+      published: true,
+      sortOrder: index,
+    };
+    await prisma.work.upsert({
+      where: { slug: w.slug },
+      update: record,
+      create: { slug: w.slug, ...record },
     });
     console.log(`✓ work ${w.slug} processed`);
   }
 
-  // ── settings ──
-  const settingsData = {
-    siteName: "BWSTUDIO",
-    showreelUrl: "/uploads/showreel/showreel.mp4",
-    showreelPoster: "/uploads/showreel/poster.jpg",
-  };
+  const settingsData = { siteName: "BWSTUDIO", showreelUrl, showreelPoster };
   await prisma.settings.upsert({
     where: { id: 1 },
     update: settingsData,

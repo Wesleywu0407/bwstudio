@@ -1,12 +1,14 @@
-// SQLite for dev/VPS; schema 保持 Postgres 相容(切換只改 provider + url)
-// SQLite 不支援 enum,category 用 String,值域由 lib/works.ts 的 CATEGORIES 驗證
+// 正典 schema:Postgres(雲端後台)。
+// 本地沒設 postgres DATABASE_URL 時,scripts/db.mjs 會自動衍生 SQLite 版
+// (prisma/schema.sqlite.prisma,gitignored)——所以不要用 SQLite 不支援的型別/enum。
+// category 用 String,值域由 lib/categories.ts 驗證。
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
