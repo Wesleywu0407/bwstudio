@@ -30,8 +30,8 @@ export default async function HomePage() {
       {reel && (
         <section id="showreel" className="scroll-mt-24 px-5 md:px-10">
           <div className="mb-4 flex items-end justify-between border-t border-line pt-4">
-            <MonoLabel>Showreel — 2026</MonoLabel>
-            <MonoLabel>{settings.siteName}</MonoLabel>
+            <MonoLabel>01 — Showreel</MonoLabel>
+            <MonoLabel>{settings.siteName} · 2026</MonoLabel>
           </div>
           <div className="relative h-[62vh] w-full overflow-hidden bg-panel md:h-[82vh]" data-cursor="play">
             <video
@@ -51,7 +51,7 @@ export default async function HomePage() {
 
       <section className="page-shell py-24 md:py-40">
         <div className="mb-20 grid grid-cols-1 gap-8 border-t border-line pt-4 md:mb-32 md:grid-cols-12">
-          <MonoLabel className="md:col-span-3">Selected work / 2024—26</MonoLabel>
+          <MonoLabel className="md:col-span-3">02 — Selected work / 2024—26</MonoLabel>
           <p className="font-display text-3xl font-light leading-tight tracking-[-0.045em] md:col-span-7 md:col-start-6 md:text-5xl">
             Synthetic worlds, moving images, and visual systems shaped for music and culture.
           </p>

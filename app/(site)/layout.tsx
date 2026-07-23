@@ -13,10 +13,13 @@ export default async function SiteLayout({
 
   return (
     <>
+      <span id="top" aria-hidden />
       <Header siteName={settings.siteName} />
       <main className="flex-1">{children}</main>
       <Footer
         siteName={settings.siteName}
+        tagline={settings.tagline}
+        location={settings.location}
         email={settings.email}
         instagram={settings.instagram}
         vimeo={settings.vimeo}
