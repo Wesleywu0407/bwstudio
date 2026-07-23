@@ -1,8 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run vercel-build",
-  "env": {
-    "DATABASE_URL": "file:./dev.db",
-    "SESSION_SECRET": "preview-only-no-admin-session-secret"
-  }
+  "buildCommand": "npm run vercel-build"
 }
