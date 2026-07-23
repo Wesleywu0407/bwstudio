@@ -33,7 +33,8 @@ export default async function HomePage() {
             <MonoLabel>01 — Showreel</MonoLabel>
             <MonoLabel>{settings.siteName} · 2026</MonoLabel>
           </div>
-          <div className="relative h-[62vh] w-full overflow-hidden bg-panel md:h-[82vh]" data-cursor="play">
+          {/* object-contain:完整顯示整個 showreel,不裁切(任何比例都適用),黑邊= 放映廳感 */}
+          <div className="relative h-[58vh] w-full overflow-hidden bg-black md:h-[78vh]" data-cursor="play">
             <video
               autoPlay
               muted
@@ -41,7 +42,7 @@ export default async function HomePage() {
               playsInline
               preload="metadata"
               {...(poster ? { poster } : {})}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             >
               <source src={reel} type="video/mp4" />
             </video>
