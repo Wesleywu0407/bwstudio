@@ -74,10 +74,26 @@ export default function WorkEditor({ work }: { work?: WorkInput }) {
     setBusy(false);
   }
 
+  // 雲端儲存單檔上限(Supabase 免費方案 50MB);影片留安全邊界 48MB
+  const MAX_VIDEO_MB = 48;
+  const MAX_IMAGE_MB = 15;
+
   async function upload(file: File) {
     setBusy(true); setMessage(""); setPct(null);
+    const isVideo = file.type.startsWith("video/");
+    const limitMB = isVideo ? MAX_VIDEO_MB : MAX_IMAGE_MB;
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > limitMB) {
+      setBusy(false);
+      setMessage(
+        isVideo
+          ? `This video is ${sizeMB.toFixed(0)}MB — over the ${limitMB}MB cloud limit. Export a web version first (1080p, H.264, ~6 Mbps) and upload that. Raw camera/render files are far too large for the web.`
+          : `This image is ${sizeMB.toFixed(0)}MB — over the ${limitMB}MB limit. Export a JPG/WebP under ${limitMB}MB.`,
+      );
+      return;
+    }
     try {
-      if (file.type.startsWith("video/")) await directVideoUpload(file);
+      if (isVideo) await directVideoUpload(file);
       else {
         const ticket = await requestTicket("image", file.name, file.type);
         if (ticket.mode === "local") await legacyUpload(file);
