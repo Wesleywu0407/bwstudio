@@ -4,15 +4,8 @@ import WorkCard from "@/components/works/WorkCard";
 import MonoLabel from "@/components/ui/MonoLabel";
 import { getFeaturedWorks, getSettings } from "@/lib/works";
 
-const FALLBACK_STATEMENT =
-  "I build 3D worlds and moving images for music, culture, and brands.";
-
 export default async function HomePage() {
   const [works, settings] = await Promise.all([getFeaturedWorks(), getSettings()]);
-  // 首屏定位大字:取 about 的第一句(可在後台 Settings 編輯)
-  const statement =
-    (settings.aboutText?.trim().split(/(?<=[.!?])\s+/)[0] || "").trim() ||
-    FALLBACK_STATEMENT;
   const reel = settings.showreelUrl;
   const poster = settings.showreelPoster || works[0]?.coverImage || "";
 
@@ -22,7 +15,7 @@ export default async function HomePage() {
         name={settings.siteName}
         tagline={settings.tagline}
         location={settings.location}
-        statement={statement}
+        domains="Music · Culture · Brands"
         hasReel={Boolean(reel)}
       />
 

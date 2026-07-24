@@ -65,6 +65,36 @@ video {
   outline-offset: 3px;
 }
 
+/* 進場動效(純 CSS,可靠;reduced-motion 由下方 @media 自動停用)*/
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-rise {
+  animation: hero-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 頁面轉場(純 CSS,每次路由切換 template 重掛就重播)*/
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-enter {
+  animation: page-enter 0.32s ease-out both;
+}
+
 /* 前台自訂游標:桌面指標裝置才隱藏原生游標 */
 @media (pointer: fine) {
   .site-cursor,
